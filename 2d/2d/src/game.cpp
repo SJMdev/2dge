@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include <iostream>
 #include <SDL.h>
+#include <SDL_image.h>
 
 #define OK 0
 
@@ -109,15 +110,16 @@ void Game::Render()
 	SDL_RenderClear(renderer);
 	// todo: render all game objects.
 
-	// wtf global state??
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_Rect player{
-		.x = 10,
-		.y = 10,
-		.w = 20,
-		.h = 20
-	};
-	SDL_RenderFillRect(renderer, &player);
+	// draw a PNG texture.
+	SDL_Texture* texture = IMG_LoadTexture(renderer, "assets/images/tank-tiger-right.png");
+	SDL_Point size;
+	SDL_QueryTexture(texture, nullptr, nullptr, &size.x, &size.y);
+	
+	// What is the destination rectangle that we want to place our texture
+	SDL_Rect destinationRect = { 10,10, size.x, size.y };
+	// the third argument is the "source rectangle", but what that means is if you want to copy a section of the texture instead of the whole thing.
+	SDL_RenderCopy(renderer, texture, nullptr, &destinationRect);
+	SDL_DestroyTexture(texture);
 
 	// swap buffers
 	SDL_RenderPresent(renderer);
