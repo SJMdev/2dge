@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 
+const int FPS = 120;
+const int MILLISECONDS_PER_FRAME = 1000 / FPS;
 
 class Game
 {
@@ -29,5 +31,12 @@ private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	bool isRunning = false;
-	
+	// start of the previous frame.
+	int millisecondsAtPreviousFrame = 0;
+	bool frameRateCapped = false;
 };
+
+
+// just because I want to write it down somewhere.
+// Delta time is the amount elapsed since the last frame.
+// you don't want to think "how many pixels per frame, but instead: "how many pixels per SECOND."

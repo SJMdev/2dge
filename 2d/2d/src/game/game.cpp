@@ -1,8 +1,17 @@
 #include "game.hpp"
+
+// System includes
 #include <iostream>
+
+
+// third part inclkudes
 #include <SDL.h>
 #include <SDL_image.h>
 #include <glm/glm.hpp>
+
+// other includes
+#include "../logger/logger.hpp" // this is so much worse than just one folder... never use relative paths like this.
+#include "../ecs/ecs.hpp"
 
 #define OK 0
 
@@ -14,8 +23,9 @@ namespace
 
 void Game::Initialize()
 {
+	Logger::Log("hello!~\n");
 	if (SDL_Init(SDL_INIT_EVERYTHING) != OK) {
-		std::cerr << "error initializing SDL." << '\n';
+		Logger::Err("error initializing SDL");
 		return;
 	}
 
@@ -41,13 +51,13 @@ void Game::Initialize()
 
 	if (!window)
 	{
-		std::cerr << "Error creating SDL window." << '\n';
+		Logger::Err("Error creating SDL window.");
 	}
 
 	renderer = SDL_CreateRenderer(window, -1, 0);
 	if (!renderer)
 	{
-		std::cerr << "Error creating SDL renderer" << '\n';
+		Logger::Err("Error creating SDL renderer.");
 		return;
 	}
 
@@ -59,7 +69,6 @@ void Game::Initialize()
 
 	isRunning = true;
 }
-
 
 void Game::Run()
 {
@@ -77,15 +86,37 @@ void Game::Setup()
 {
 	// initialize game objects (why not call it that then??????????????)
 	playerPosition = glm::vec2(10.0, 20.0);
-	playerVelocity = glm::vec2(0.05, 0.0);
+	playerVelocity = glm::vec2(10, 5.0);
 
 }
 
-
+// fixing (not repairing, but "keep steady") the timestep: sleep until we hit the frame timer.
 void Game::Update()
 {
+	//@NOTE(SJM): busy waiting solution.
+	{
+	// SDL_getTicks gets time elapsed since sdl l  oaded.
+	// if we are too fast, waste some time until we reach milisecs_per_frame (for stable physics).
+	// how much time has passed since the previous frame?
+	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), millisecondsAtPreviousFrame + MILLISECONDS_PER_FRAME));
+	}
+
+	//@NOTE(SJM): SDL_Delay solution (suspend thread?)
+	if (frameRateCapped)
+	{
+		int TimeElapsedSinceLastFrame = (SDL_GetTicks() - millisecondsAtPreviousFrame);
+		int timeToWait = MILLISECONDS_PER_FRAME - TimeElapsedSinceLastFrame;
+		if (timeToWait > 0 && timeToWait <= MILLISECONDS_PER_FRAME)
+		{
+			SDL_Delay(timeToWait);
+		}
+	}
+	
+	// store the start of "this" (the upcoming) frame.
+	float deltaTime = (SDL_GetTicks() - millisecondsAtPreviousFrame) / 1000.0f;
+	 millisecondsAtPreviousFrame = SDL_GetTicks();
 	// TODO: update game objects.
-	playerPosition = playerPosition + playerVelocity;
+	playerPosition = playerPosition + (playerVelocity * deltaTime);
 }
 
 void Game::ProcessInput()
