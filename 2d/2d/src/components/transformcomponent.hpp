@@ -7,6 +7,7 @@ struct TransformComponent
 	glm::vec2 position;
 	glm::vec2 scale;
 	double rotation;
+	TransformComponent() = default;
 
 	TransformComponent(
 		glm::vec2 position,
@@ -17,7 +18,6 @@ struct TransformComponent
 		scale(scale),
 		rotation(rotation)
 	{}
-
 
 };
 

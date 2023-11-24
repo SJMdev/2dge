@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 
+
+#include "../ecs/ecs.hpp"
 const int FPS = 120;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
 
@@ -13,7 +15,7 @@ public:
 	int windowHeight = 600;
 	bool fullscreen = false;
 
-	Game() = default;
+	Game();
 	~Game() = default;
 
 	Game(Game&& game) = delete;
@@ -30,6 +32,7 @@ public:
 private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
+	std::unique_ptr<Registry> registry = nullptr;
 	bool isRunning = false;
 	// start of the previous frame.
 	int millisecondsAtPreviousFrame = 0;

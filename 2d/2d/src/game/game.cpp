@@ -12,8 +12,16 @@
 // other includes
 #include "../logger/logger.hpp" // this is so much worse than just one folder... never use relative paths like this.
 #include "../ecs/ecs.hpp"
+#include "../components/transformcomponent.hpp"
+#include "../components/rigidbodycomponent.hpp"
+#include "../Systems/movementsystem.hpp"
 
 #define OK 0
+
+Game::Game()
+{
+	registry = std::make_unique<Registry>();
+}
 
 namespace
 {
@@ -84,6 +92,14 @@ void Game::Run()
 
 void Game::Setup()
 {
+	// add the systems that need to be processed in our game.
+	registry->AddSystem<MovementSystem>();
+
+	Entity tank = registry->CreateEntity();
+	registry->AddComponent<TransformComponent>(tank, glm::vec2(10.0, 30.0), glm::vec2(1.0,1.0), 0.0);
+	registry->AddComponent<RigidBodyComponent>(tank, glm::vec2(10.0, 30.0));
+
+
 	// initialize game objects (why not call it that then??????????????)
 	playerPosition = glm::vec2(10.0, 20.0);
 	playerVelocity = glm::vec2(10, 5.0);
@@ -95,7 +111,7 @@ void Game::Update()
 {
 	//@NOTE(SJM): busy waiting solution.
 	{
-	// SDL_getTicks gets time elapsed since sdl l  oaded.
+	// SDL_getTicks gets time elapsed since sdl loaded.
 	// if we are too fast, waste some time until we reach milisecs_per_frame (for stable physics).
 	// how much time has passed since the previous frame?
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), millisecondsAtPreviousFrame + MILLISECONDS_PER_FRAME));
@@ -117,6 +133,14 @@ void Game::Update()
 	 millisecondsAtPreviousFrame = SDL_GetTicks();
 	// TODO: update game objects.
 	playerPosition = playerPosition + (playerVelocity * deltaTime);
+
+	// ask all the systems to update
+	registry->GetSystem<MovementSystem>().Update();
+	//TODO: registry->getSystem<CollisionSystem>().Update();
+	// 
+	// update the registry to process the entities that are waiting to  be created / deleted.
+	registry->Update();
+
 }
 
 void Game::ProcessInput()
