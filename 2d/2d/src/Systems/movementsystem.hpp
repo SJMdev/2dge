@@ -15,7 +15,7 @@ public:
 	MovementSystem(MovementSystem& rhs) = delete;
 	MovementSystem(MovementSystem&& rhs) = delete;
 
-	void Update() {
+	void Update(double deltaTime) {
 
 		// loop all entities that the system is interested in.
 		for (auto& entity : GetSystemEntities()) {
@@ -24,14 +24,14 @@ public:
 			auto& transform = entity.GetComponent<TransformComponent>();
 			auto& rigidbody = entity.GetComponent<RigidBodyComponent>();
 
-			transform.position.x += rigidbody.velocity.x;
-			transform.position.y += rigidbody.velocity.y;
+			transform.position.x += rigidbody.velocity.x * deltaTime;
+			transform.position.y += rigidbody.velocity.y * deltaTime;
 
-			Logger::Log("Entity id =" +
-				std::to_string(entity.GetId()) +
-				" position is now (" + 
-				std::to_string(transform.position.x) +
-				std::to_string(transform.position.y) + ")" + '\n');
+			//Logger::Log("Entity id =" +
+			//	std::to_string(entity.GetId()) +
+			//	" position is now (" + 
+			//	std::to_string(transform.position.x) +
+			//	std::to_string(transform.position.y) + ")" + '\n');
 		}
 	}
 };

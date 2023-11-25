@@ -14,13 +14,17 @@
 #include "../ecs/ecs.hpp"
 #include "../components/transformcomponent.hpp"
 #include "../components/rigidbodycomponent.hpp"
+#include "../components/spritecomponent.hpp"
+
 #include "../Systems/movementsystem.hpp"
+#include "../Systems/rendersystem.hpp"
 
 #define OK 0
 
 Game::Game()
 {
 	registry = std::make_unique<Registry>();
+	assetStore = std::make_unique<AssetStore>();
 }
 
 namespace
@@ -94,15 +98,27 @@ void Game::Setup()
 {
 	// add the systems that need to be processed in our game.
 	registry->AddSystem<MovementSystem>();
+	registry->AddSystem<RenderSystem>();
+
+	// add assets to the asset store.
+	assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
+	assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
+
 
 	Entity tank = registry->CreateEntity();
-	registry->AddComponent<TransformComponent>(tank, glm::vec2(10.0, 30.0), glm::vec2(1.0,1.0), 0.0);
-	registry->AddComponent<RigidBodyComponent>(tank, glm::vec2(10.0, 30.0));
+	tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0,1.0), 0.0);
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(40.0, 0.0));
+	tank.AddComponent<SpriteComponent>("tank-image", 10, 10);
 
+
+	Entity truck = registry->CreateEntity();
+	truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
+	truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 50.0));
+	truck.AddComponent<SpriteComponent>("truck-image", 10, 50);
 
 	// initialize game objects (why not call it that then??????????????)
 	playerPosition = glm::vec2(10.0, 20.0);
-	playerVelocity = glm::vec2(10, 5.0);
+	playerVelocity = glm::vec2(10, 50.0);
 
 }
 
@@ -135,8 +151,7 @@ void Game::Update()
 	playerPosition = playerPosition + (playerVelocity * deltaTime);
 
 	// ask all the systems to update
-	registry->GetSystem<MovementSystem>().Update();
-	//TODO: registry->getSystem<CollisionSystem>().Update();
+	registry->GetSystem<MovementSystem>().Update(deltaTime);
 	// 
 	// update the registry to process the entities that are waiting to  be created / deleted.
 	registry->Update();
@@ -175,6 +190,10 @@ void Game::Render()
 	SDL_RenderClear(renderer);
 	// todo: render all game objects.
 
+	// invoke all the systems that need to render.
+	registry->GetSystem<RenderSystem>().Update(renderer);
+
+
 	// with a surface:
 	/*
 	{
@@ -201,8 +220,6 @@ void Game::Render()
 	// swap buffers
 	SDL_RenderPresent(renderer);
 }
-
-
 
 void Game::Destroy()
 {

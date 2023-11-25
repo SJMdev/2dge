@@ -5,6 +5,7 @@
 #include "../ecs/ecs.hpp"
 const int FPS = 120;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
+#include "../assetstore/assetstore.hpp"
 
 class Game
 {
@@ -33,6 +34,7 @@ private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	std::unique_ptr<Registry> registry = nullptr;
+	std::unique_ptr<AssetStore> assetStore = nullptr;
 	bool isRunning = false;
 	// start of the previous frame.
 	int millisecondsAtPreviousFrame = 0;
