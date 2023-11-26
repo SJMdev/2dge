@@ -2,17 +2,27 @@
 #include "../ecs/ecs.hpp"
 #include <string>
 
+
 struct SpriteComponent
 {
 	std::string assetId;
 	int width;
 	int height;
+	int zIndex;
+	SDL_Rect srcRect; // where are we in the atlas?
 
-	SpriteComponent(std::string assetId = "", int width = 0, int height = 0)
+	SpriteComponent(
+		std::string assetId = "",
+		int width = 0,
+		int height = 0,
+		int zIndex = 0, 
+		int srcRectX = 0,
+		int srcRectY = 0)
 		:
 		assetId(assetId),
 		width(width),
-		height(height)
+		height(height),
+		srcRect(srcRectX, srcRectY, width, height)
 	{}
 
 

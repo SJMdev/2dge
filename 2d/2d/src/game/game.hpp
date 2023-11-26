@@ -29,6 +29,9 @@ public:
 	void Update();
 	void Render();
 	void Destroy();
+	void LoadLevel(int level);
+	void parseMapFile(std::string mapFileName, int tiles_per_row, int tiles_per_column);
+
 
 private:
 	SDL_Window* window = nullptr;
