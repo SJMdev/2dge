@@ -23,6 +23,7 @@
 #include "../Systems/rendersystem.hpp"
 #include "../Systems/animationsystem.hpp"
 #include "../Systems/collisionsystem.hpp"
+#include "../Systems/rendercollidersystem.hpp"
 
 #define OK 0
 
@@ -171,6 +172,7 @@ void Game::LoadLevel(int level)
 	registry->AddSystem<RenderSystem>();
 	registry->AddSystem<AnimationSystem>();
 	registry->AddSystem<CollisionSystem>();
+	registry->AddSystem<RenderColliderSystem>();
 
 	// add assets to the asset store.
 	assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -236,6 +238,7 @@ void Game::LoadLevel(int level)
 	truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 2);
 	truck.AddComponent<BoxColliderComponent>(32, 32);
 
+
 	// initialize game objects (why not call it that then??????????????)
 	//playerPosition = glm::vec2(10.0, 20.0);
 	//playerVelocity = glm::vec2(10, 50.0);
@@ -281,6 +284,7 @@ void Game::Update()
 	registry->GetSystem<AnimationSystem>().Update();
 	registry->GetSystem<CollisionSystem>().Update();
 
+
 	// update the registry to process the entities that are waiting to  be created / deleted.
 	registry->Update();
 
@@ -305,7 +309,13 @@ void Game::ProcessInput()
 					isRunning = false;
 					break;
 				}
+				if (sdlEvent.key.keysym.sym == SDLK_d) {
+					isDebug = !isDebug;
+					break;
+				}
+
 			}
+
 		}
 	}
 
@@ -320,6 +330,10 @@ void Game::Render()
 
 	// invoke all the systems that need to render.
 	registry->GetSystem<RenderSystem>().Update(renderer, assetStore);
+	if (isDebug) {
+		registry->GetSystem<RenderColliderSystem>().Update(renderer);
+	}
+
 
 
 	// with a surface:

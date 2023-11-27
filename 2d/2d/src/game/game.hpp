@@ -3,9 +3,11 @@
 
 
 #include "../ecs/ecs.hpp"
+#include "../assetstore/assetstore.hpp"
+#include "../eventbus/eventbus.hpp"
+
 const int FPS = 120;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
-#include "../assetstore/assetstore.hpp"
 
 class Game
 {
@@ -15,6 +17,7 @@ public:
 	int windowWidth = 800; 
 	int windowHeight = 600;
 	bool fullscreen = false;
+	bool isDebug = false;
 
 	Game();
 	~Game() = default;
@@ -38,6 +41,7 @@ private:
 	SDL_Renderer* renderer = nullptr;
 	std::unique_ptr<Registry> registry = nullptr;
 	std::unique_ptr<AssetStore> assetStore = nullptr;
+	std::unique_ptr<EventBus> eventBus = nullptr;
 	bool isRunning = false;
 	// start of the previous frame.
 	int millisecondsAtPreviousFrame = 0;

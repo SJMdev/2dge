@@ -45,6 +45,8 @@ public:
 				if (have_collided)
 				{
 					Logger::Log("Entity " + std::to_string(a.GetId()) + "has collided with Entity " + std::to_string(b.GetId()));
+					
+					//TODO: emit an event.
 				}
 
 			}

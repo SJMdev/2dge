@@ -5,6 +5,7 @@
 #include <typeindex>
 #include <set>
 #include <memory>
+#include <deque>
 #include <string>
 #include "../logger/logger.hpp"
 
@@ -47,6 +48,7 @@ public:
 	}
 	Entity(const Entity& entity) = default;
 	~Entity() = default;
+	void Kill();
 	
 	bool operator ==(const Entity& other) const { return id == other.id; }
 	bool operator !=(const Entity& other) const { return id != other.id; }
@@ -141,6 +143,7 @@ public:
 class Registry {
 private:
 
+
 	// keep track of how many entities were aded to the scene.
 	int numEntities = 0;
 	 // vector index = component type id;
@@ -153,6 +156,8 @@ private:
 	// map of active systems[index = system typeid]
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 
+	// Lsit of free ids that were previously removed
+	std::deque<int> freeIds;
 
 	std::set<Entity> entitiesToBeAdded;
 	std::set<Entity> entitiesToBeKilled;
@@ -160,13 +165,14 @@ private:
 public:
 	Registry() = default;
 	Entity CreateEntity();
-
 	void KillEntity(Entity entity);
 	
 	
 	// checks the component signature of an entity and add the entity to the systems
 	// that are interested in it.
 	void AddEntityToSystems(Entity entity);
+	// remove entity from its systems.
+	void RemoveEntityFromSystems(Entity entity);
 
 	// Component things
 	template <typename T, typename ...TArgs>
