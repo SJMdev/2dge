@@ -24,6 +24,10 @@
 #include "../Systems/animationsystem.hpp"
 #include "../Systems/collisionsystem.hpp"
 #include "../Systems/rendercollidersystem.hpp"
+#include "../Systems/damagesystem.hpp"
+#include "../Systems/keyboardmovementsystem.hpp"
+
+
 
 #define OK 0
 
@@ -31,6 +35,7 @@ Game::Game()
 {
 	registry = std::make_unique<Registry>();
 	assetStore = std::make_unique<AssetStore>();
+	eventBus = std::make_unique<EventBus>();
 }
 
 namespace
@@ -173,6 +178,9 @@ void Game::LoadLevel(int level)
 	registry->AddSystem<AnimationSystem>();
 	registry->AddSystem<CollisionSystem>();
 	registry->AddSystem<RenderColliderSystem>();
+	registry->AddSystem<DamageSystem>();
+	registry->AddSystem<KeyboardMovementSystem>();
+
 
 	// add assets to the asset store.
 	assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -277,12 +285,24 @@ void Game::Update()
 	 millisecondsAtPreviousFrame = SDL_GetTicks();
 	// TODO: update game objects.
 
+	// reset all event handlers for the current frame.
+	 eventBus->Reset();
+
+	 // perform the subscription of the events for all systems. (note: I think
+	 // this is actually bad design: we should just do it globally instead of every frame.
+	 // I am also wondering why we are 'reactive'  to events and not just add them to a queue
+	 // of things to handle when the damage system gets updated. I'm not sure if we will
+	 // ever get an answer.
+	 registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
+	 registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(eventBus);
+
 	//playerPosition = playerPosition + (playerVelocity * deltaTime);
 
-	// ask all the systems to update
+	// invoke all the systems that need to render.
 	registry->GetSystem<MovementSystem>().Update(deltaTime);
 	registry->GetSystem<AnimationSystem>().Update();
-	registry->GetSystem<CollisionSystem>().Update();
+	registry->GetSystem<CollisionSystem>().Update(eventBus);
+	registry->GetSystem<DamageSystem>().Update();
 
 
 	// update the registry to process the entities that are waiting to  be created / deleted.
@@ -307,13 +327,12 @@ void Game::ProcessInput()
 				if (sdlEvent.key.keysym.sym == SDLK_ESCAPE)
 				{
 					isRunning = false;
-					break;
 				}
 				if (sdlEvent.key.keysym.sym == SDLK_d) {
 					isDebug = !isDebug;
-					break;
 				}
-
+				eventBus->EmitEvent<KeyPressedEvent>(sdlEvent.key.keysym.sym);
+				break;
 			}
 
 		}

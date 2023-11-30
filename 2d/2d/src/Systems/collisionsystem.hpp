@@ -1,6 +1,12 @@
 #pragma once
 #include "../ecs/ecs.hpp"
 #include "../components/boxcollidercomponent.hpp"
+#include "../eventbus/eventbus.hpp"
+#include "../eventbus/event.hpp"
+#include "../eventbus/event.hpp"
+#include "../events/collisionevent.hpp"
+
+
 class CollisionSystem : public System {
 
 
@@ -10,7 +16,7 @@ public:
 		RequireComponent<BoxColliderComponent>();
 	}
 
-	void Update() {
+	void Update(std::unique_ptr<EventBus>& eventBus) {
 		// TODO: 
 		// check all entities that have a boxcollider
 		// to see if they are colliding with each other.
@@ -46,7 +52,7 @@ public:
 				{
 					Logger::Log("Entity " + std::to_string(a.GetId()) + "has collided with Entity " + std::to_string(b.GetId()));
 					
-					//TODO: emit an event.
+					eventBus->EmitEvent<CollisionEvent>(a, b);
 				}
 
 			}
