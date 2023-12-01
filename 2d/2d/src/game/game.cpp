@@ -18,6 +18,8 @@
 #include "../components/spritecomponent.hpp"
 #include "../components/animationcomponent.hpp"
 #include "../components/boxcollidercomponent.hpp"
+#include "../components/keyboardcontrolledcomponent.hpp"
+#include "../components/projectileemittercomponent.hpp"
 
 #include "../Systems/movementsystem.hpp"
 #include "../Systems/rendersystem.hpp"
@@ -26,10 +28,17 @@
 #include "../Systems/rendercollidersystem.hpp"
 #include "../Systems/damagesystem.hpp"
 #include "../Systems/keyboardmovementsystem.hpp"
-
+#include "../Systems/cameramovementsystem.hpp"
+#include "../Systems/projectileemitsystem.hpp"
 
 
 #define OK 0
+
+int Game::windowWidth;
+int Game::windowHeight;
+int Game::mapWidth;
+int Game::mapHeight;
+
 
 Game::Game()
 {
@@ -54,6 +63,9 @@ void Game::Initialize()
 
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
+
+	windowWidth = 400;
+	windowHeight = 300;
 
 	if (fullscreen)
 	{
@@ -89,6 +101,11 @@ void Game::Initialize()
 		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
 	
+	// initialize the camera view with the entire screen area
+	camera.x = 0;
+	camera.y = 0;
+	camera.h = windowHeight;
+	camera.w = windowWidth;
 
 	isRunning = true;
 }
@@ -115,8 +132,12 @@ void Game::parseMapFile(std::string mapFileName, int tiles_per_row, int tiles_pe
 			tile_start_position[tiles_per_row * row_idx + column_idx] = glm::vec2{ 32 * column_idx, 32 * row_idx };
 		}
 	}
-	// these are our "source destinations."
 
+	mapWidth = tiles_per_row * 32;
+	mapHeight = tiles_per_column * 32;
+
+	// these are our "source destinations."
+	
 	// how many entries do we have in the map file?
 	std::ifstream file(mapFileName);
 
@@ -180,12 +201,14 @@ void Game::LoadLevel(int level)
 	registry->AddSystem<RenderColliderSystem>();
 	registry->AddSystem<DamageSystem>();
 	registry->AddSystem<KeyboardMovementSystem>();
+	registry->AddSystem<CameraMovementSystem>();
+	registry->AddSystem<ProjectileEmitSystem>();
 
 
 	// add assets to the asset store.
 	assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
 	assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
-	assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper.png");
+	assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
 
 	assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
@@ -198,22 +221,49 @@ void Game::LoadLevel(int level)
 	// tip: you can use the idea of the source rectangle.
 	// tip: consider creating one entity per tile.
 	// how many tiles are in this texture?
-	uint32_t format{};
-	int access{};
-	int width{};
-	int height;
-	SDL_QueryTexture(assetStore->GetTexture("jungle"),
-		&format,
-		&access,
-		&width,
-		&height);
-	int tiles_per_row = width / 32;
-	int tiles_per_column = height / 32;
-	int total_tile_count = tiles_per_row * tiles_per_column;
+	//uint32_t format{};
+	//int access{};
+	//int width{};
+	//int height;
+	//SDL_QueryTexture(assetStore->GetTexture("jungle"),
+	//	&format,
+	//	&access,
+	//	&width,
+	//	&height);
+	//int tiles_per_row = width / 32;
+	//int tiles_per_column = height / 32;
+	//int total_tile_count = tiles_per_row * tiles_per_column;
+	//parseMapFile("./assets/tilemaps/jungle.map", tiles_per_row, tiles_per_column);
 
+	{
+		// Load the tilemap
+		int tileSize = 32;
+		double tileScale = 2.0;
+		int mapNumCols = 25;
+		int mapNumRows = 20;
 
-	parseMapFile("./assets/tilemaps/jungle.map", tiles_per_row, tiles_per_column);
+		std::fstream mapFile;
+		mapFile.open("./assets/tilemaps/jungle.map");
 
+		for (int y = 0; y < mapNumRows; y++) {
+			for (int x = 0; x < mapNumCols; x++) {
+				char ch;
+				mapFile.get(ch);
+				int srcRectY = std::atoi(&ch) * tileSize;
+				mapFile.get(ch);
+				int srcRectX = std::atoi(&ch) * tileSize;
+				mapFile.ignore();
+
+				Entity tile = registry->CreateEntity();
+				tile.AddComponent<TransformComponent>(glm::vec2(x * (tileScale * tileSize), y * (tileScale * tileSize)), glm::vec2(tileScale, tileScale), 0.0);
+				tile.AddComponent<SpriteComponent>("jungle", tileSize, tileSize, 0, false, srcRectX, srcRectY);
+			}
+		}
+		mapFile.close();
+
+		mapWidth = mapNumCols * tileScale * tileSize;
+		mapHeight = mapNumRows * tileScale * tileSize;
+	}
 
 	
 	Entity chopper = registry->CreateEntity();
@@ -223,13 +273,23 @@ void Game::LoadLevel(int level)
 	chopper.AddComponent<AnimationComponent>(2, // how many frames of animation?
 		15,
 		true);
+	// distance in pixels per second for up, right, left, down.
+	chopper.AddComponent<KeyboardControlledComponent>(
+		glm::vec2(0, -80),
+		glm::vec2(80, 0),
+		glm::vec2(0, 80),
+		glm::vec2(-80, 0));
+	chopper.AddComponent<CameraFollowComponent>();
+
 
 	Entity radar = registry->CreateEntity();
 	radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74, 10), glm::vec2(1.0, 1.0), 0.0);
 	radar.AddComponent<RigidBodyComponent>(glm::vec2(00.0, 0.0));
-	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2, 
+		true // GUI element?
+	);
 	radar.AddComponent<AnimationComponent>(8, // how many frames of animation?
-		5,
+		5, // how many frames per second do we advance?
 		true);
 
 
@@ -238,13 +298,15 @@ void Game::LoadLevel(int level)
 	tank.AddComponent<RigidBodyComponent>(glm::vec2(-30.0, 0.0));
 	tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 1);
 	tank.AddComponent<BoxColliderComponent>(32, 32);
-
+	tank.AddComponent<ProjectileEmitterComponent>();
 
 	Entity truck = registry->CreateEntity();
 	truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
 	truck.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 2);
 	truck.AddComponent<BoxColliderComponent>(32, 32);
+	tank.AddComponent<ProjectileEmitterComponent>();
+
 
 
 	// initialize game objects (why not call it that then??????????????)
@@ -303,7 +365,8 @@ void Game::Update()
 	registry->GetSystem<AnimationSystem>().Update();
 	registry->GetSystem<CollisionSystem>().Update(eventBus);
 	registry->GetSystem<DamageSystem>().Update();
-
+	registry->GetSystem<ProjectileEmitSystem>().Update(registry);
+	registry->GetSystem<CameraMovementSystem>().Update(camera);
 
 	// update the registry to process the entities that are waiting to  be created / deleted.
 	registry->Update();
@@ -348,9 +411,9 @@ void Game::Render()
 	// todo: render all game objects.
 
 	// invoke all the systems that need to render.
-	registry->GetSystem<RenderSystem>().Update(renderer, assetStore);
+	registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
 	if (isDebug) {
-		registry->GetSystem<RenderColliderSystem>().Update(renderer);
+		registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);
 	}
 
 

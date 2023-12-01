@@ -14,8 +14,11 @@ class Game
 	
 
 public:
-	int windowWidth = 800; 
-	int windowHeight = 600;
+	static int windowWidth;
+	static int windowHeight;
+	static int mapWidth;
+	static int mapHeight;
+
 	bool fullscreen = false;
 	bool isDebug = false;
 
@@ -42,6 +45,7 @@ private:
 	std::unique_ptr<Registry> registry = nullptr;
 	std::unique_ptr<AssetStore> assetStore = nullptr;
 	std::unique_ptr<EventBus> eventBus = nullptr;
+	SDL_Rect camera;
 	bool isRunning = false;
 	// start of the previous frame.
 	int millisecondsAtPreviousFrame = 0;
