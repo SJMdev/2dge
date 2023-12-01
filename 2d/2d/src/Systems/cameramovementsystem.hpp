@@ -31,7 +31,7 @@ public:
             camera.x = (camera.x + camera.w > Game::mapWidth) ? Game::mapWidth - camera.w : camera.x;
             camera.y = (camera.y + camera.h > Game::mapHeight) ? Game::mapHeight - camera.h : camera.y;
 
-			Logger::Log("Camera changed its position to: "+  std::to_string(camera.x) + ", " +  std::to_string(camera.y) + '\n');
+			//Logger::Log("Camera changed its position to: "+  std::to_string(camera.x) + ", " +  std::to_string(camera.y) + '\n');
 		}
 	}
 

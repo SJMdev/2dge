@@ -64,8 +64,8 @@ void Game::Initialize()
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
-	windowWidth = 400;
-	windowHeight = 300;
+	windowWidth = 800;
+	windowHeight = 600;
 
 	if (fullscreen)
 	{
@@ -210,8 +210,8 @@ void Game::LoadLevel(int level)
 	assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
 	assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
-
 	assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
+	assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
 
 	
 	//TODO:
@@ -295,17 +295,27 @@ void Game::LoadLevel(int level)
 
 	Entity tank = registry->CreateEntity();
 	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(-30.0, 0.0));
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 1);
 	tank.AddComponent<BoxColliderComponent>(32, 32);
-	tank.AddComponent<ProjectileEmitterComponent>();
+	tank.AddComponent<ProjectileEmitterComponent>(
+		glm::vec2(100.0, 0.0),
+		2000, // every n seconds in miliseconds
+		10000,
+		0,
+		false);
 
 	Entity truck = registry->CreateEntity();
 	truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
-	truck.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
+	truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 2);
 	truck.AddComponent<BoxColliderComponent>(32, 32);
-	tank.AddComponent<ProjectileEmitterComponent>();
+	truck.AddComponent<ProjectileEmitterComponent>(
+		glm::vec2(0.0, 100.0),
+		2000, // every n seconds in miliseconds
+		10000,
+		0,
+		false);
 
 
 

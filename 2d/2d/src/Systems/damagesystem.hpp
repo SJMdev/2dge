@@ -20,9 +20,8 @@ public:
 	void onCollision(CollisionEvent& event) {
 		Logger::Log("The damage system received an event collision between entities " +
 			std::to_string(event.a.GetId()) + " and entity " + std::to_string(event.b.GetId()) + '\n');
-		event.a.Kill();
-		event.b.Kill();
-		int a = 9;
+		//event.a.Kill();
+		//event.b.Kill();
 	}
 	void Update() {
 		// todo: what do we do then in the damage system????
