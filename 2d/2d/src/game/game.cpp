@@ -20,6 +20,7 @@
 #include "../components/boxcollidercomponent.hpp"
 #include "../components/keyboardcontrolledcomponent.hpp"
 #include "../components/projectileemittercomponent.hpp"
+#include "../components/healthcomponent.hpp"
 
 #include "../Systems/movementsystem.hpp"
 #include "../Systems/rendersystem.hpp"
@@ -30,6 +31,7 @@
 #include "../Systems/keyboardmovementsystem.hpp"
 #include "../Systems/cameramovementsystem.hpp"
 #include "../Systems/projectileemitsystem.hpp"
+#include "../Systems/projectilelifecyclesystem.hpp"
 
 
 #define OK 0
@@ -203,6 +205,7 @@ void Game::LoadLevel(int level)
 	registry->AddSystem<KeyboardMovementSystem>();
 	registry->AddSystem<CameraMovementSystem>();
 	registry->AddSystem<ProjectileEmitSystem>();
+	registry->AddSystem <ProjectileLifecycleSystem>();
 
 
 	// add assets to the asset store.
@@ -280,7 +283,7 @@ void Game::LoadLevel(int level)
 		glm::vec2(0, 80),
 		glm::vec2(-80, 0));
 	chopper.AddComponent<CameraFollowComponent>();
-
+	chopper.AddComponent<HealthComponent>(100);
 
 	Entity radar = registry->CreateEntity();
 	radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -300,10 +303,12 @@ void Game::LoadLevel(int level)
 	tank.AddComponent<BoxColliderComponent>(32, 32);
 	tank.AddComponent<ProjectileEmitterComponent>(
 		glm::vec2(100.0, 0.0),
-		2000, // every n seconds in miliseconds
-		10000,
+		5000, // every n seconds in miliseconds
+		3000,
 		0,
 		false);
+	tank.AddComponent<HealthComponent>(100);
+
 
 	Entity truck = registry->CreateEntity();
 	truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
@@ -313,9 +318,11 @@ void Game::LoadLevel(int level)
 	truck.AddComponent<ProjectileEmitterComponent>(
 		glm::vec2(0.0, 100.0),
 		2000, // every n seconds in miliseconds
-		10000,
+		5000,
 		0,
 		false);
+	truck.AddComponent<HealthComponent>(100);
+
 
 
 
@@ -374,9 +381,10 @@ void Game::Update()
 	registry->GetSystem<MovementSystem>().Update(deltaTime);
 	registry->GetSystem<AnimationSystem>().Update();
 	registry->GetSystem<CollisionSystem>().Update(eventBus);
-	registry->GetSystem<DamageSystem>().Update();
-	registry->GetSystem<ProjectileEmitSystem>().Update(registry);
+	//registry->GetSystem<DamageSystem>().Update(); // does not actually do anything.
+ 	registry->GetSystem<ProjectileEmitSystem>().Update(registry);
 	registry->GetSystem<CameraMovementSystem>().Update(camera);
+	registry->GetSystem<ProjectileLifecycleSystem>().Update();
 
 	// update the registry to process the entities that are waiting to  be created / deleted.
 	registry->Update();

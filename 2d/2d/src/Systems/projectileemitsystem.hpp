@@ -5,6 +5,8 @@
 #include "../components/transformcomponent.hpp"
 #include "../components/rigidbodycomponent.hpp"
 #include "../components/boxcollidercomponent.hpp"
+#include "../components/projectilecomponent.hpp"
+
 class ProjectileEmitSystem : public System {
 public:
 	ProjectileEmitSystem()
@@ -24,7 +26,7 @@ public:
 				glm::vec2 projectilePosition = transform.position;
 				if (entity.HasComponent<SpriteComponent>())
 				{
-					// I do not like hwo scale is used throughout instead of multiplying the dimensions once.
+					// I do not like how scale is used throughout instead of multiplying the dimensions once.
 					// it seems like things can go wrong very fast.
 					const auto sprite = entity.GetComponent<SpriteComponent>();
 					projectilePosition.x += (transform.scale.x * sprite.width / 2);
@@ -34,8 +36,11 @@ public:
 				Entity projectile = registry->CreateEntity();
 				projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(1.0, 1.0), 0.0);
 				projectile.AddComponent<RigidBodyComponent>(projectileEmitter.projectileVelocity);
-				projectile.AddComponent<SpriteComponent>("bullet-image", 4, 4, 
+				projectile.AddComponent<SpriteComponent>(
+					"bullet-image", 
+					4, 4,  // width, height
 					4); // z-index
+				projectile.AddComponent<ProjectileComponent>(projectileEmitter.isFriendly,projectileEmitter.hitPercentDamage, projectileEmitter.projectileDuration);
 				// the 4,4 are just the bounds of the sprite.
 				projectile.AddComponent<BoxColliderComponent>(4, 4);
 				projectileEmitter.lastEmissionTime = SDL_GetTicks();
