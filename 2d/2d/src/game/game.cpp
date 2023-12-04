@@ -164,6 +164,7 @@ void Game::parseMapFile(std::string mapFileName, int tiles_per_row, int tiles_pe
 			for (const auto& element : items) {
 				int tile_idx = std::stoi(element);
 				auto entity = registry->CreateEntity();
+				entity.Group("tiles");
 				entity.AddComponent<SpriteComponent>(
 					"jungle",
 					32, 32,
@@ -270,6 +271,7 @@ void Game::LoadLevel(int level)
 
 	
 	Entity chopper = registry->CreateEntity();
+	chopper.Tag("player");
 	chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
 	chopper.AddComponent<RigidBodyComponent>(glm::vec2(00.0, 0.0));
 	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
@@ -284,6 +286,9 @@ void Game::LoadLevel(int level)
 		glm::vec2(-80, 0));
 	chopper.AddComponent<CameraFollowComponent>();
 	chopper.AddComponent<HealthComponent>(100);
+	chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(150.0, 150.0), 0, 10000, 0 ,true);
+
+
 
 	Entity radar = registry->CreateEntity();
 	radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -297,6 +302,7 @@ void Game::LoadLevel(int level)
 
 
 	Entity tank = registry->CreateEntity();
+	tank.Group("enemies");
 	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
 	tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 1);
@@ -311,6 +317,7 @@ void Game::LoadLevel(int level)
 
 
 	Entity truck = registry->CreateEntity();
+	truck.Group("enemies");
 	truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
 	truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 2);
@@ -374,6 +381,7 @@ void Game::Update()
 	 // ever get an answer.
 	 registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
 	 registry->GetSystem<KeyboardMovementSystem>().SubscribeToEvents(eventBus);
+	 registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
 
 	//playerPosition = playerPosition + (playerVelocity * deltaTime);
 

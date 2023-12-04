@@ -3,7 +3,11 @@
 
 
 int BaseComponent::nextId = 0;
+
+// ----------------------
 // ENTITY
+// ----------------------
+
 int Entity::GetId() const
 {
 	return id;
@@ -13,8 +17,24 @@ void Entity::Kill() {
 	registry->KillEntity(*this);
 }
 
+// tag management
+void Entity::Tag(const std::string& tag) {
+	registry->TagEntity(*this, tag);
+}
+bool Entity::hasTag(const std::string& tag) const {
+	return registry->EntityhasTag(*this, tag);
+}
+void Entity::Group(const std::string& groupName) {
+	registry->GroupEntity(*this, groupName);
+}
+bool Entity::BelongsToGroup(const std::string& groupName) const {
+	return registry->EntityBelongsToGroup(*this, groupName);
+}
 
+
+// ----------------------
 // SYSTEM
+// ----------------------
 // should we check if the entity does not already exist?
 void System::AddEntityToSystem(Entity entity) {
 	entities.push_back(entity);
@@ -90,6 +110,74 @@ void Registry::RemoveEntityFromSystems(Entity entity) {
 	}
 }
 
+// tag management
+void Registry::TagEntity(Entity entity, const std::string& tag) {
+	entityPerTag.emplace(tag, entity);
+	tagPerEntity.emplace(entity.GetId(), tag);
+}
+bool Registry::EntityhasTag(Entity entity, const std::string& tag) const {
+	if (tagPerEntity.find(entity.GetId()) == tagPerEntity.end()) {
+		return false;
+	}
+
+	// uh, doing this twice? let's hope the compiler optimizes! :~)
+	return entityPerTag.find(tag)->second == entity;
+
+}
+Entity Registry::GetEntityByTag(const std::string& tag) const {
+	// huh, what if this does not exist? ah , we use .at() which will throw. sigh.
+	return entityPerTag.at(tag);
+}
+void Registry::RemoveEntityTag(Entity entity) {
+	auto taggedEntity = tagPerEntity.find(entity.GetId());
+	if (taggedEntity != tagPerEntity.end()) {
+		auto tag = taggedEntity->second;
+		entityPerTag.erase(tag);
+		tagPerEntity.erase(taggedEntity);
+	}
+
+}
+
+// group management
+void Registry::GroupEntity(Entity entity, const std::string& group) {
+	entitiesPerGroup.emplace(group, std::set<Entity>());
+	entitiesPerGroup[group].emplace(entity);
+	groupPerEntity.emplace(entity.GetId(), group);
+}
+bool Registry::EntityBelongsToGroup(Entity entity, const std::string& group) const {
+	if (groupPerEntity.find(entity.GetId()) == groupPerEntity.end()) {
+		return false;
+	}
+	return groupPerEntity.find(entity.GetId())->second == group;
+
+}
+std::vector<Entity> Registry::GetEntitiesByGroup(const std::string& group) const {
+	auto& setOfEntities = entitiesPerGroup.at(group);
+	return std::vector<Entity>(setOfEntities.begin(), setOfEntities.end());
+}
+void Registry::RemoveEntityGroup(Entity entity) {
+	// if in group, remove entity from group management.
+	auto groupedEntity = groupPerEntity.find(entity.GetId());
+	if (groupedEntity != groupPerEntity.end()) {
+		auto group = entitiesPerGroup.find(groupedEntity->second);
+		if (group != entitiesPerGroup.end()) {
+			auto entityInGroup = group->second.find(entity);
+			if (entityInGroup != group->second.end()) {
+				group->second.erase(entityInGroup);
+			}
+		}
+		groupPerEntity.erase(groupedEntity);
+	}
+}
+
+
+
+
+
+
+
+
+
 
 //
 void Registry::Update()
@@ -104,11 +192,13 @@ void Registry::Update()
 	// process the entities that are waiting to be killed from the active systems.
 	for (auto entity : entitiesToBeKilled) {
 		RemoveEntityFromSystems(entity);
-
-		
 		entityComponentSignatures[entity.GetId()].reset();
 		// make the entity id available to be reused.
 		freeIds.push_back(entity.GetId());
+
+		// remove any trace existence of that entity from the tag / group maps
+		RemoveEntityTag(entity);
+		RemoveEntityGroup(entity);
 	}
 	entitiesToBeKilled.clear();
 }

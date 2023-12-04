@@ -8,10 +8,11 @@
 #include <deque>
 #include <string>
 #include "../logger/logger.hpp"
+#include <map>
 
 const unsigned int MAX_COMPONENTS = 32;
 typedef std::bitset<MAX_COMPONENTS> Signature;
-// we use a bitset| (1s and 0s) to kee ptrack of which components an entity has,
+// we use a bitset (1s and 0s) to keep track of which components an entity has,
 // which also helps keep track of which entities a system is interested in.
 
 struct BaseComponent {
@@ -70,6 +71,14 @@ public:
 	
 	template <typename TComponent>
 	TComponent& GetComponent() const;
+
+
+	// Tag management
+	void Tag(const std::string& tag);
+	bool hasTag(const std::string& tag) const;
+	void Group(const std::string& groupName);
+	bool BelongsToGroup(const std::string& groupName) const;
+
 
 };
 
@@ -156,14 +165,28 @@ private:
 	// map of active systems[index = system typeid]
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 
-	// Lsit of free ids that were previously removed
+	// Lsit of free entity ids that were previously removed
 	std::deque<int> freeIds;
 
 	std::set<Entity> entitiesToBeAdded;
 	std::set<Entity> entitiesToBeKilled;
 
+	// note to self: stupid solutions are allowed. just this once. 
+	// entity tags (one tag name per entity)
+	std::unordered_map<std::string, Entity> entityPerTag;
+	std::unordered_map<int, std::string> tagPerEntity;
+
+	// entity groups (a set of entities per group name)
+	std::unordered_map<std::string, std::set<Entity>> entitiesPerGroup;
+	std::unordered_map<int, std::string> groupPerEntity;
+
+
 public:
 	Registry() = default;
+	
+	//--------------------------
+	// Entity things
+	//--------------------------
 	Entity CreateEntity();
 	void KillEntity(Entity entity);
 	
@@ -174,7 +197,23 @@ public:
 	// remove entity from its systems.
 	void RemoveEntityFromSystems(Entity entity);
 
+	// tag management
+	void TagEntity(Entity entity, const std::string& tag);
+	bool EntityhasTag(Entity entity, const std::string& tag) const;
+	Entity GetEntityByTag(const std::string& tag) const;
+	void RemoveEntityTag(Entity entity);
+
+	// group management
+	void GroupEntity(Entity entity, const std::string& group);
+	bool EntityBelongsToGroup(Entity entity, const std::string& group) const;
+	std::vector<Entity> GetEntitiesByGroup(const std::string& group) const;
+	void RemoveEntityGroup(Entity entity);
+
+
+	//--------------------------
 	// Component things
+	//--------------------------
+
 	template <typename T, typename ...TArgs>
 	void AddComponent(Entity entity, TArgs&& ...args);
 
@@ -187,7 +226,10 @@ public:
 	template <typename T> 
 	T& GetComponent(Entity entity) const;
 
+	//--------------------------
 	// System things.
+	//--------------------------
+
 	template <typename T, typename ...TArgs> 
 	void AddSystem(TArgs&& ...args);
 
