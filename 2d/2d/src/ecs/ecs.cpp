@@ -21,7 +21,7 @@ void Entity::Kill() {
 void Entity::Tag(const std::string& tag) {
 	registry->TagEntity(*this, tag);
 }
-bool Entity::hasTag(const std::string& tag) const {
+bool Entity::HasTag(const std::string& tag) const {
 	return registry->EntityhasTag(*this, tag);
 }
 void Entity::Group(const std::string& groupName) {

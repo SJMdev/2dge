@@ -75,7 +75,7 @@ public:
 
 	// Tag management
 	void Tag(const std::string& tag);
-	bool hasTag(const std::string& tag) const;
+	bool HasTag(const std::string& tag) const;
 	void Group(const std::string& groupName);
 	bool BelongsToGroup(const std::string& groupName) const;
 

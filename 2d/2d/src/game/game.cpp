@@ -160,7 +160,8 @@ void Game::parseMapFile(std::string mapFileName, int tiles_per_row, int tiles_pe
 
 			const auto entity_idx = 0;
 			const auto item_count = items.size();
-			// Process items here (for example, print them)
+		
+			
 			for (const auto& element : items) {
 				int tile_idx = std::stoi(element);
 				auto entity = registry->CreateEntity();
@@ -272,7 +273,7 @@ void Game::LoadLevel(int level)
 	
 	Entity chopper = registry->CreateEntity();
 	chopper.Tag("player");
-	chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
+	chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
 	chopper.AddComponent<RigidBodyComponent>(glm::vec2(00.0, 0.0));
 	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
 	chopper.AddComponent<AnimationComponent>(2, // how many frames of animation?
@@ -286,9 +287,13 @@ void Game::LoadLevel(int level)
 		glm::vec2(-80, 0));
 	chopper.AddComponent<CameraFollowComponent>();
 	chopper.AddComponent<HealthComponent>(100);
-	chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(150.0, 150.0), 0, 10000, 0 ,true);
-
-
+	chopper.AddComponent<BoxColliderComponent>(32, 32);
+	chopper.AddComponent<ProjectileEmitterComponent>(
+		glm::vec2(150.0, 150.0),
+		0,
+		10000,
+		10 , // percentage hit damage
+		true);
 
 	Entity radar = registry->CreateEntity();
 	radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -311,7 +316,7 @@ void Game::LoadLevel(int level)
 		glm::vec2(100.0, 0.0),
 		5000, // every n seconds in miliseconds
 		3000,
-		0,
+		10, // percent hit damage
 		false);
 	tank.AddComponent<HealthComponent>(100);
 
@@ -326,7 +331,7 @@ void Game::LoadLevel(int level)
 		glm::vec2(0.0, 100.0),
 		2000, // every n seconds in miliseconds
 		5000,
-		0,
+		50, // percent hit damage.
 		false);
 	truck.AddComponent<HealthComponent>(100);
 
