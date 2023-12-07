@@ -21,18 +21,20 @@
 #include "../components/keyboardcontrolledcomponent.hpp"
 #include "../components/projectileemittercomponent.hpp"
 #include "../components/healthcomponent.hpp"
+#include "../components/textlabelcomponent.hpp"
 
 #include "../Systems/movementsystem.hpp"
 #include "../Systems/rendersystem.hpp"
 #include "../Systems/animationsystem.hpp"
 #include "../Systems/collisionsystem.hpp"
 #include "../Systems/rendercollidersystem.hpp"
+#include "../Systems/rendertextsystem.hpp"
 #include "../Systems/damagesystem.hpp"
 #include "../Systems/keyboardmovementsystem.hpp"
 #include "../Systems/cameramovementsystem.hpp"
 #include "../Systems/projectileemitsystem.hpp"
 #include "../Systems/projectilelifecyclesystem.hpp"
-
+#include "../Systems/renderhealthbarsystem.hpp"
 
 #define OK 0
 
@@ -60,6 +62,11 @@ void Game::Initialize()
 	Logger::Log("hello!~\n");
 	if (SDL_Init(SDL_INIT_EVERYTHING) != OK) {
 		Logger::Err("error initializing SDL");
+		return;
+	}
+
+	if (TTF_Init() != OK) {
+		Logger::Err("error initializing SDL TTF.");
 		return;
 	}
 
@@ -207,8 +214,9 @@ void Game::LoadLevel(int level)
 	registry->AddSystem<KeyboardMovementSystem>();
 	registry->AddSystem<CameraMovementSystem>();
 	registry->AddSystem<ProjectileEmitSystem>();
-	registry->AddSystem <ProjectileLifecycleSystem>();
-
+	registry->AddSystem<ProjectileLifecycleSystem>();
+	registry->AddSystem<RenderTextSystem>();
+	registry->AddSystem<RenderHealthBarSystem>();
 
 	// add assets to the asset store.
 	assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -217,6 +225,10 @@ void Game::LoadLevel(int level)
 	assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
 	assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
 	assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
+	assetStore->addFont("charriot-font", "./assets/fonts/charriot.ttf", 20);
+	assetStore->addFont("pico8-font-5", "./assets/fonts/charriot.ttf", 5);
+	assetStore->addFont("pico8-font-10", "./assets/fonts/charriot.ttf", 10);
+
 
 	
 	//TODO:
@@ -336,6 +348,16 @@ void Game::LoadLevel(int level)
 	truck.AddComponent<HealthComponent>(100);
 
 
+	Entity label = registry->CreateEntity();
+	label.Group("labels");
+	label.AddComponent<TextLabelComponent>(
+		glm::vec2(windowWidth / 2- 40, 10),
+		"CHOPPER 1.0",
+		"charriot-font",
+		SDL_Color{.r = 0, .g = 255, .b = 0, .a =255}, 
+		true
+		);
+
 
 
 	// initialize game objects (why not call it that then??????????????)
@@ -447,7 +469,8 @@ void Game::Render()
 		registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);
 	}
 
-
+	registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera);
+	registry->GetSystem<RenderHealthBarSystem>().Update(renderer, assetStore, camera);
 
 	// with a surface:
 	/*

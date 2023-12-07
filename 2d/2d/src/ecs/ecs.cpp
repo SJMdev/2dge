@@ -173,12 +173,6 @@ void Registry::RemoveEntityGroup(Entity entity) {
 
 
 
-
-
-
-
-
-
 //
 void Registry::Update()
 {
@@ -193,6 +187,14 @@ void Registry::Update()
 	for (auto entity : entitiesToBeKilled) {
 		RemoveEntityFromSystems(entity);
 		entityComponentSignatures[entity.GetId()].reset();
+
+		// rewmove the entity from the component pools.
+		for (auto pool : componentPools) {
+			if (pool) {
+				pool->RemoveEntityFromPool(entity.GetId());
+			}
+		}
+
 		// make the entity id available to be reused.
 		freeIds.push_back(entity.GetId());
 
