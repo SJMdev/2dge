@@ -24,8 +24,21 @@ public:
 
 
 		for (auto& entity : renderableEntities) {
-			const auto transform = entity.GetComponent<TransformComponent>();
-			const auto sprite = entity.GetComponent<SpriteComponent>();
+
+			const auto& transform = entity.GetComponent<TransformComponent>();
+			const auto& sprite = entity.GetComponent<SpriteComponent>();
+
+			bool isEntityOutsideCameraView = (
+				transform.position.x + transform.scale.x * sprite.width< camera.x ||
+				transform.position.x > camera.x + camera.w ||
+				transform.position.y + transform.scale.y * sprite.height < camera.y ||
+				transform.position.y > camera.y + camera.h
+				);
+
+			// cull sprites that are outside othe camera view and are not fixed
+			if (isEntityOutsideCameraView && !sprite.isFixed) {
+				continue;
+			}
 
 			// set the source rectangle of our original sprite texture (select from texture atlas).
 			SDL_Rect srcRect = sprite.srcRect;
@@ -45,7 +58,7 @@ public:
 				&dstRect,
 				transform.rotation,
 				nullptr, // rotate around the center point.
-				SDL_FLIP_NONE
+				sprite.flip
 			);
 
 		}

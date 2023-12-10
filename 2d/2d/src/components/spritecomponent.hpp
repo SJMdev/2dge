@@ -9,6 +9,7 @@ struct SpriteComponent
 	int width;
 	int height;
 	int zIndex;
+	SDL_RendererFlip flip;
 	bool isFixed;
 	SDL_Rect srcRect; // where are we in the atlas?
 
@@ -24,8 +25,10 @@ struct SpriteComponent
 		assetId(assetId),
 		width(width),
 		height(height),
+		zIndex(zIndex),
+		flip(SDL_FLIP_NONE),
 		isFixed(isFixed),
-		srcRect(srcRectX, srcRectY, width, height)
+		srcRect{ srcRectX, srcRectY, width, height }
 	{}
 
 
