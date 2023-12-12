@@ -5,7 +5,7 @@
 #include "../ecs/ecs.hpp"
 #include "../assetstore/assetstore.hpp"
 #include "../eventbus/eventbus.hpp"
-
+#include <sol/sol.hpp>
 const int FPS = 120;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
 
@@ -35,13 +35,15 @@ public:
 	void Update();
 	void Render();
 	void Destroy();
-	void LoadLevel(int level);
 	void parseMapFile(std::string mapFileName, int tiles_per_row, int tiles_per_column);
 
 
 private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
+
+	sol::state lua;
+
 	std::unique_ptr<Registry> registry = nullptr;
 	std::unique_ptr<AssetStore> assetStore = nullptr;
 	std::unique_ptr<EventBus> eventBus = nullptr;

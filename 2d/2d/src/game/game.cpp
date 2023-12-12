@@ -16,6 +16,7 @@
 
 
 // other includes
+#include "levelloader.hpp"
 #include "../logger/logger.hpp" // this is so much worse than just one folder... never use relative paths like this.
 #include "../ecs/ecs.hpp"
 #include "../components/transformcomponent.hpp"
@@ -215,10 +216,9 @@ void Game::parseMapFile(std::string mapFileName, int tiles_per_row, int tiles_pe
 
 }
 
-// add entities, load 
-void Game::LoadLevel(int level)
-{
 
+void Game::Setup()
+{	
 	// add the systems that need to be processed in our game.
 	registry->AddSystem<MovementSystem>();
 	registry->AddSystem<RenderSystem>();
@@ -234,174 +234,11 @@ void Game::LoadLevel(int level)
 	registry->AddSystem<RenderHealthBarSystem>();
 	registry->AddSystem<RenderGUISystem>();
 
-	// add assets to the asset store.
-	assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
-	assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
-	assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
-	assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
-	assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
-	assetStore->AddTexture(renderer, "bullet-image", "./assets/images/bullet.png");
-	assetStore->AddTexture(renderer, "tree-image", "./assets/images/tree.png");
 
-	assetStore->addFont("charriot-font", "./assets/fonts/charriot.ttf", 20);
-	assetStore->addFont("pico8-font-5", "./assets/fonts/charriot.ttf", 5);
-	assetStore->addFont("pico8-font-10", "./assets/fonts/charriot.ttf", 10);
-
-
+	LevelLoader loader{};
+	lua.open_libraries(sol::lib::base, sol::lib::math);
 	
-	//TODO:
-	// load the tilemap
-	// load the tilemap texture from ./assets/tilemaps/jungle.png
-	// we need to load the file ./assets/tilemaps/jungle.map
-	// tip: you can use the idea of the source rectangle.
-	// tip: consider creating one entity per tile.
-	// how many tiles are in this texture?
-	//uint32_t format{};
-	//int access{};
-	//int width{};
-	//int height;
-	//SDL_QueryTexture(assetStore->GetTexture("jungle"),
-	//	&format,
-	//	&access,
-	//	&width,
-	//	&height);
-	//int tiles_per_row = width / 32;
-	//int tiles_per_column = height / 32;
-	//int total_tile_count = tiles_per_row * tiles_per_column;
-	//parseMapFile("./assets/tilemaps/jungle.map", tiles_per_row, tiles_per_column);
-
-	{
-		// Load the tilemap
-		int tileSize = 32;
-		double tileScale = 2.0;
-		int mapNumCols = 25;
-		int mapNumRows = 20;
-
-		std::fstream mapFile;
-		mapFile.open("./assets/tilemaps/jungle.map");
-
-		for (int y = 0; y < mapNumRows; y++) {
-			for (int x = 0; x < mapNumCols; x++) {
-				char ch;
-				mapFile.get(ch);
-				int srcRectY = std::atoi(&ch) * tileSize;
-				mapFile.get(ch);
-				int srcRectX = std::atoi(&ch) * tileSize;
-				mapFile.ignore();
-
-				Entity tile = registry->CreateEntity();
-				tile.AddComponent<TransformComponent>(glm::vec2(x * (tileScale * tileSize), y * (tileScale * tileSize)), glm::vec2(tileScale, tileScale), 0.0);
-				tile.AddComponent<SpriteComponent>("jungle", tileSize, tileSize, 0, false, srcRectX, srcRectY);
-			}
-		}
-		mapFile.close();
-
-		mapWidth = mapNumCols * tileScale * tileSize;
-		mapHeight = mapNumRows * tileScale * tileSize;
-	}
-
-	
-	Entity chopper = registry->CreateEntity();
-	chopper.Tag("player");
-	chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
-	chopper.AddComponent<RigidBodyComponent>(glm::vec2(00.0, 0.0));
-	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
-	chopper.AddComponent<AnimationComponent>(2, // how many frames of animation?
-		15,
-		true);
-	// distance in pixels per second for up, right, left, down.
-	chopper.AddComponent<KeyboardControlledComponent>(
-		glm::vec2(0, -80),
-		glm::vec2(80, 0),
-		glm::vec2(0, 80),
-		glm::vec2(-80, 0));
-	chopper.AddComponent<CameraFollowComponent>();
-	chopper.AddComponent<HealthComponent>(100);
-	chopper.AddComponent<BoxColliderComponent>(32, 32);
-	chopper.AddComponent<ProjectileEmitterComponent>(
-		glm::vec2(150.0, 150.0),
-		0,
-		10000,
-		10 , // percentage hit damage
-		true);
-
-	Entity radar = registry->CreateEntity();
-	radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74, 10), glm::vec2(1.0, 1.0), 0.0);
-	radar.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
-	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2, 
-		true // GUI element?
-	);
-	radar.AddComponent<AnimationComponent>(8, // how many frames of animation?
-		5, // how many frames per second do we advance?
-		true);
-
-
-	Entity tank = registry->CreateEntity();
-	tank.Group("enemies");
-	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 500.0), glm::vec2(1.0, 1.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
-	tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 1);
-	tank.AddComponent<BoxColliderComponent>(32, 32);
-	//tank.AddComponent<ProjectileEmitterComponent>(
-	//	glm::vec2(100.0, 0.0),
-	//	5000, // every n seconds in miliseconds
-	//	3000,
-	//	10, // percent hit damage
-	//	false);
-	tank.AddComponent<HealthComponent>(100);
-
-	Entity treeA = registry->CreateEntity();
-	treeA.Group("obstacles");
-	treeA.AddComponent<TransformComponent>(glm::vec2(600.0, 495), glm::vec2(1.0, 1.0), 0.0);
-	treeA.AddComponent<RigidBodyComponent>(glm::vec2(00.0, 0.0));
-	treeA.AddComponent<SpriteComponent>("tree-image", 16, 32, 2);
-	treeA.AddComponent<BoxColliderComponent>(16, 32);
-
-
-	Entity treeB = registry->CreateEntity();
-	treeB.Group("obstacles");
-	treeB.AddComponent<TransformComponent>(glm::vec2(400.0, 495), glm::vec2(1.0, 1.0), 0.0);
-	treeB.AddComponent<RigidBodyComponent>(glm::vec2(00.0, 0.0));
-	treeB.AddComponent<SpriteComponent>("tree-image", 16, 32, 2);
-	treeB.AddComponent<BoxColliderComponent>(16, 32);
-
-
-	Entity truck = registry->CreateEntity();
-	truck.Group("enemies");
-	truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
-	truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
-	truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 2);
-	truck.AddComponent<BoxColliderComponent>(32, 32);
-	truck.AddComponent<ProjectileEmitterComponent>(
-		glm::vec2(0.0, 100.0),
-		2000, // every n seconds in miliseconds
-		5000,
-		50, // percent hit damage.
-		false);
-	truck.AddComponent<HealthComponent>(100);
-
-
-	Entity label = registry->CreateEntity();
-	label.Group("labels");
-	label.AddComponent<TextLabelComponent>(
-		glm::vec2(windowWidth / 2- 40, 10),
-		"CHOPPER 1.0",
-		"charriot-font",
-		SDL_Color{.r = 0, .g = 255, .b = 0, .a =255}, 
-		true
-		);
-
-
-
-	// initialize game objects (why not call it that then??????????????)
-	//playerPosition = glm::vec2(10.0, 20.0);
-	//playerVelocity = glm::vec2(10, 50.0);
-	int a = 0;
-}
-
-void Game::Setup()
-{
-	LoadLevel(1);
+	loader.loadLevel(lua, registry, assetStore, renderer, 1);
 }
 
 // fixing (not repairing, but "keep steady") the timestep: sleep until we hit the frame timer.
