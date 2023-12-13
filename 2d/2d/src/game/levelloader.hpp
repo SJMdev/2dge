@@ -10,12 +10,13 @@ class LevelLoader {
 
 
 public:
-	LevelLoader() = default;
-	~LevelLoader() = default;
-	void loadLevel(
-		sol::state& lua,
-		std::unique_ptr<Registry>& registry,
-		std::unique_ptr<AssetStore>& assetStore,
-		SDL_Renderer* renderer,
-		int levelNumber);
+    LevelLoader() = default;
+    ~LevelLoader() = default;
+    void LoadLevel(
+        sol::state& lua,
+        const std::unique_ptr<Registry>& registry,
+        const std::unique_ptr<AssetStore>& assetStore,
+        SDL_Renderer* renderer,
+        int levelNumber);
 };
+

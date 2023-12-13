@@ -42,6 +42,7 @@
 #include "../Systems/projectilelifecyclesystem.hpp"
 #include "../Systems/renderhealthbarsystem.hpp"
 #include "../Systems/renderguisystem.hpp"
+#include "../Systems/scriptsystem.hpp"
 
 #define OK 0
 
@@ -233,12 +234,16 @@ void Game::Setup()
 	registry->AddSystem<RenderTextSystem>();
 	registry->AddSystem<RenderHealthBarSystem>();
 	registry->AddSystem<RenderGUISystem>();
+	registry->AddSystem<ScriptSystem>();
 
 
+	// create the bindings between c++ and lua.
+
+	registry->GetSystem<ScriptSystem>().CreateLuaBindings(lua);
 	LevelLoader loader{};
-	lua.open_libraries(sol::lib::base, sol::lib::math);
+	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::os);
 	
-	loader.loadLevel(lua, registry, assetStore, renderer, 1);
+	loader.LoadLevel(lua, registry, assetStore, renderer, 1);
 }
 
 // fixing (not repairing, but "keep steady") the timestep: sleep until we hit the frame timer.
@@ -291,6 +296,7 @@ void Game::Update()
  	registry->GetSystem<ProjectileEmitSystem>().Update(registry);
 	registry->GetSystem<CameraMovementSystem>().Update(camera);
 	registry->GetSystem<ProjectileLifecycleSystem>().Update();
+	registry->GetSystem<ScriptSystem>().Update(deltaTime, SDL_GetTicks());
 
 	// update the registry to process the entities that are waiting to  be created / deleted.
 	registry->Update();

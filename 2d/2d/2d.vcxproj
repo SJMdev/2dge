@@ -71,8 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\sjors\Desktop\2d\windows\2d\2d\libs;C:\Users\sjors\Desktop\2d\windows\SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;C:\Users\sjors\Desktop\2d\windows\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\sjors\Desktop\2d\windows\lua\include;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs;C:\Users\sjors\Desktop\2d\windows\SDL2\include;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs;C:\Users\sjors\Desktop\2d\windows\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\sjors\Desktop\2d\windows\lua;C:\Users\sjors\Desktop\2d\windows\SDL2\lib\x64;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\sjors\Desktop\2d\windows\lua\include;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs;C:\Users\sjors\Desktop\2d\windows\SDL2\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Users\sjors\Desktop\2d\windows\lua;C:\Users\sjors\Desktop\2d\windows\SDL2\lib\x64;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\sjors\Desktop\2d\windows\lua\include;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs;C:\Users\sjors\Desktop\2d\windows\SDL2\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Users\sjors\Desktop\2d\windows\lua;C:\Users\sjors\Desktop\2d\windows\SDL2\lib\x64;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\sjors\Desktop\2d\windows\lua\include;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs;C:\Users\sjors\Desktop\2d\windows\SDL2\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Users\sjors\Desktop\2d\windows\lua;C:\Users\sjors\Desktop\2d\windows\SDL2\lib\x64;C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -80,10 +92,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\sjors\Desktop\2d\windows\lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,12 +110,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\sjors\Desktop\2d\windows\lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,11 +129,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;liblua54.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\sjors\Desktop\2d\windows\lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -124,12 +146,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\sjors\Desktop\2d\windows\2d\2d\libs\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\sjors\Desktop\2d\windows\lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -137,10 +163,33 @@
     <ClCompile Include="libs\imgui\imgui.cpp" />
     <ClCompile Include="libs\imgui\imgui_demo.cpp" />
     <ClCompile Include="libs\imgui\imgui_draw.cpp" />
+    <ClCompile Include="libs\imgui\imgui_impl_sdl.cpp" />
     <ClCompile Include="libs\imgui\imgui_sdl.cpp" />
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\assetstore\assetstore.cpp" />
+    <ClCompile Include="src\components\rigidbodycomponent.cpp" />
+    <ClCompile Include="src\Components\transformcomponent.cpp" />
+    <ClCompile Include="src\ecs\ecs.cpp" />
+    <ClCompile Include="src\game\game.cpp" />
+    <ClCompile Include="src\game\levelloader.cpp" />
+    <ClCompile Include="src\logger\logger.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClInclude Include="libs\imgui\imgui_impl_sdl.h" />
+    <ClInclude Include="src\components\camerafollowcomponent.hpp" />
+    <ClInclude Include="src\components\healthcomponent.hpp" />
+    <ClInclude Include="src\components\keyboardcontrolledcomponent.hpp" />
+    <ClInclude Include="src\components\projectilecomponent.hpp" />
+    <ClInclude Include="src\components\projectileemittercomponent.hpp" />
+    <ClInclude Include="src\components\scriptcomponent.hpp" />
+    <ClInclude Include="src\components\textlabelcomponent.hpp" />
+    <ClInclude Include="src\events\keypressedevent.hpp" />
+    <ClInclude Include="src\game\levelloader.hpp" />
+    <ClInclude Include="src\Systems\cameramovementsystem.hpp" />
+    <ClInclude Include="src\Systems\damagesystem.hpp" />
+    <ClInclude Include="src\Systems\renderguisystem.hpp" />
+    <ClInclude Include="src\Systems\renderhealthbarsystem.hpp" />
+    <ClInclude Include="src\Systems\rendertextsystem.hpp" />
+    <ClInclude Include="src\Systems\scriptsystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libs\glm\common.hpp" />
@@ -396,10 +445,30 @@
     <ClInclude Include="libs\lua\lua.hpp" />
     <ClInclude Include="libs\lua\luaconf.h" />
     <ClInclude Include="libs\lua\lualib.h" />
-    <ClInclude Include="libs\sol\sol.hpp" />
-    <ClInclude Include="src\game.hpp" />
+    <ClInclude Include="src\assetstore\assetstore.hpp" />
+    <ClInclude Include="src\components\animationcomponent.hpp" />
+    <ClInclude Include="src\components\boxcollidercomponent.hpp" />
+    <ClInclude Include="src\components\rigidbodycomponent.hpp" />
+    <ClInclude Include="src\components\spritecomponent.hpp" />
+    <ClInclude Include="src\Components\transformcomponent.hpp" />
+    <ClInclude Include="src\ecs\ecs.hpp" />
+    <ClInclude Include="src\eventbus\event.hpp" />
+    <ClInclude Include="src\eventbus\eventbus.hpp" />
+    <ClInclude Include="src\events\collisionevent.hpp" />
+    <ClInclude Include="src\game\game.hpp" />
+    <ClInclude Include="src\logger\logger.hpp" />
+    <ClInclude Include="src\Systems\animationsystem.hpp" />
+    <ClInclude Include="src\Systems\collisionsystem.hpp" />
+    <ClInclude Include="src\Systems\keyboardmovementsystem.hpp" />
+    <ClInclude Include="src\Systems\movementsystem.hpp" />
+    <ClInclude Include="src\Systems\projectileemitsystem.hpp" />
+    <ClInclude Include="src\Systems\projectilelifecyclesystem.hpp" />
+    <ClInclude Include="src\Systems\rendercollidersystem.hpp" />
+    <ClInclude Include="src\Systems\rendersystem.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\scripts\myscript.lua" />
+    <None Include="imgui.ini" />
     <None Include="libs\glm\detail\func_common.inl" />
     <None Include="libs\glm\detail\func_common_simd.inl" />
     <None Include="libs\glm\detail\func_exponential.inl" />
@@ -532,6 +601,14 @@
     <None Include="libs\glm\gtx\vector_angle.inl" />
     <None Include="libs\glm\gtx\vector_query.inl" />
     <None Include="libs\glm\gtx\wrap.inl" />
+    <None Include="lua54.dll" />
+    <None Include="SDL2.dll" />
+    <None Include="SDL2_image.dll" />
+    <None Include="SDL2_mixer.dll" />
+    <None Include="SDL2_ttf.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="assets\fonts\pico8.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
