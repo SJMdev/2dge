@@ -20,15 +20,17 @@ public:
 		// TODO: 
 		// check all entities that have a boxcollider
 		// to see if they are colliding with each other.
-		size_t entity_count = GetSystemEntities().size();
 
-		for (auto a: GetSystemEntities())
-		{
-			
+		auto entities = GetSystemEntities();
+		// Loop all the entities that the system is interested in
+		for (auto i = entities.begin(); i != entities.end(); i++) {
+			Entity a = *i;
 			auto lhs_transform = a.GetComponent<TransformComponent>();
 			auto lhs_collider = a.GetComponent<BoxColliderComponent>();
-			for (auto b: GetSystemEntities())
-			{
+
+			// Loop all the entities that still need to be checked (to the right of i)
+			for (auto j = i; j != entities.end(); j++) {
+				Entity b = *j;
 				if (a == b)
 				{
 					continue;
@@ -36,19 +38,20 @@ public:
 
 				auto rhs_transform = b.GetComponent<TransformComponent>();
 				auto rhs_collider = b.GetComponent<BoxColliderComponent>();
-				
-				bool have_collided = CheckAABBCollision(
-					lhs_transform.position.x,
-					lhs_transform.position.y,
+			
+				// Perform the AABB collision check between entities a and b
+				bool collisionHappened = CheckAABBCollision(
+					lhs_transform.position.x + lhs_collider.offset.x,
+					lhs_transform.position.y + lhs_collider.offset.y,
 					lhs_collider.width,
 					lhs_collider.height,
-					rhs_transform.position.x,
-					rhs_transform.position.y,
+					rhs_transform.position.x + rhs_collider.offset.x,
+					rhs_transform.position.y + rhs_collider.offset.y,
 					rhs_collider.width,
 					rhs_collider.height
 				);
 
-				if (have_collided)
+				if (collisionHappened)
 				{
 					Logger::Log("Entity " + std::to_string(a.GetId()) + "has collided with Entity " + std::to_string(b.GetId()));
 					

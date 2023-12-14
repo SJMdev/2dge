@@ -467,6 +467,7 @@
     <ClInclude Include="src\Systems\rendersystem.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\scripts\Level2.lua" />
     <None Include="assets\scripts\myscript.lua" />
     <None Include="imgui.ini" />
     <None Include="libs\glm\detail\func_common.inl" />

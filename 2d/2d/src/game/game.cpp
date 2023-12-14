@@ -243,7 +243,7 @@ void Game::Setup()
 	LevelLoader loader{};
 	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::os);
 	
-	loader.LoadLevel(lua, registry, assetStore, renderer, 1);
+	loader.LoadLevel(lua, registry, assetStore, renderer, 2);
 }
 
 // fixing (not repairing, but "keep steady") the timestep: sleep until we hit the frame timer.
@@ -356,10 +356,7 @@ void Game::Render()
 	registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
 	if (isDebug) {
 		registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);
-
 		registry->GetSystem<RenderGUISystem>().Update(registry, camera);
-
-
 	}
 
 	registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera);
